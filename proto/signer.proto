@@ -1,0 +1,25 @@
+syntax = "proto3";
+
+package signer.v1;
+
+option go_package = "github.com/layr-labs/cerberus-api/pkg/api/v1";
+
+service Signer {
+  rpc SignGeneric(SignGenericRequest) returns (SignGenericResponse) {}
+}
+
+message SignGenericRequest {
+  // Public key of the keypair to sign with
+  string public_key = 1;
+
+  // Data to sign
+  bytes data = 2;
+
+  // Password to unlock the keypair if using local filesystem for keystore
+  string password = 3;
+}
+
+message SignGenericResponse {
+  // Signature of the data
+  bytes signature = 1;
+}

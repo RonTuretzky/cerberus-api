@@ -1,0 +1,48 @@
+name: Check make generate
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  check-make-generate:
+    name: Check make generate
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v4
+        with:
+          go-version: '1.21'  # Specify the Go version you're using
+
+      - name: Install protoc-gen-go and protoc-gen-go-grpc
+        run: |
+          go install google.golang.org/protobuf/cmd/protoc-gen-go@v1.34.1
+          go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@v1.3.0
+          go install github.com/grpc-ecosystem/grpc-gateway/v2/protoc-gen-grpc-gateway@v2.22.0
+          go install github.com/grpc-ecosystem/grpc-gateway/v2/protoc-gen-openapiv2@v2.22.0
+          echo "${HOME}/go/bin" >> $GITHUB_PATH
+
+      - uses: bufbuild/buf-setup-action@v1.44.0
+        with:
+          version: 1.32.1
+
+      - name: Check buf installation
+        run: buf --version
+
+      - name: Run make generate
+        run: make generate
+
+      - name: Check if make generate generated changes that should be committed
+        run: |
+          if [ -n "$(git status --porcelain)" ]; then
+            echo "Error: make generate generated changes that should be committed. Please run 'make generate' and commit the changes."
+            git diff
+            git status
+            exit 1
+          fi

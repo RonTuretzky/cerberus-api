@@ -1,0 +1,180 @@
+swagger: "2.0"
+info:
+  title: key_manager.proto
+  version: version not set
+tags:
+  - name: KeyManager
+  - name: Signer
+consumes:
+  - application/json
+produces:
+  - application/json
+paths:
+  /keymanager.v1.KeyManager/GenerateKeyPair:
+    post:
+      operationId: KeyManager_GenerateKeyPair
+      responses:
+        "200":
+          description: A successful response.
+          schema:
+            $ref: '#/definitions/v1GenerateKeyPairResponse'
+        default:
+          description: An unexpected error response.
+          schema:
+            $ref: '#/definitions/rpcStatus'
+      parameters:
+        - name: body
+          in: body
+          required: true
+          schema:
+            $ref: '#/definitions/v1GenerateKeyPairRequest'
+      tags:
+        - KeyManager
+  /keymanager.v1.KeyManager/ImportKey:
+    post:
+      operationId: KeyManager_ImportKey
+      responses:
+        "200":
+          description: A successful response.
+          schema:
+            $ref: '#/definitions/v1ImportKeyResponse'
+        default:
+          description: An unexpected error response.
+          schema:
+            $ref: '#/definitions/rpcStatus'
+      parameters:
+        - name: body
+          in: body
+          required: true
+          schema:
+            $ref: '#/definitions/v1ImportKeyRequest'
+      tags:
+        - KeyManager
+  /keymanager.v1.KeyManager/ListKeys:
+    post:
+      operationId: KeyManager_ListKeys
+      responses:
+        "200":
+          description: A successful response.
+          schema:
+            $ref: '#/definitions/v1ListKeysResponse'
+        default:
+          description: An unexpected error response.
+          schema:
+            $ref: '#/definitions/rpcStatus'
+      parameters:
+        - name: body
+          in: body
+          required: true
+          schema:
+            $ref: '#/definitions/v1ListKeysRequest'
+      tags:
+        - KeyManager
+  /signer.v1.Signer/SignGeneric:
+    post:
+      operationId: Signer_SignGeneric
+      responses:
+        "200":
+          description: A successful response.
+          schema:
+            $ref: '#/definitions/v1SignGenericResponse'
+        default:
+          description: An unexpected error response.
+          schema:
+            $ref: '#/definitions/rpcStatus'
+      parameters:
+        - name: body
+          in: body
+          required: true
+          schema:
+            $ref: '#/definitions/v1SignGenericRequest'
+      tags:
+        - Signer
+definitions:
+  protobufAny:
+    type: object
+    properties:
+      '@type':
+        type: string
+    additionalProperties: {}
+  rpcStatus:
+    type: object
+    properties:
+      code:
+        type: integer
+        format: int32
+      message:
+        type: string
+      details:
+        type: array
+        items:
+          type: object
+          $ref: '#/definitions/protobufAny'
+  v1GenerateKeyPairRequest:
+    type: object
+    properties:
+      password:
+        type: string
+        title: |-
+          Password to encrypt the private key
+          This will be only used if the keystore is local filesystem based
+  v1GenerateKeyPairResponse:
+    type: object
+    properties:
+      publicKey:
+        type: string
+        title: Public key hex of the generated keypair
+      privateKey:
+        type: string
+        title: Private key hex of the generated keypair
+      mnemonic:
+        type: string
+        title: Mnemonic of the generated keypair
+  v1ImportKeyRequest:
+    type: object
+    properties:
+      privateKey:
+        type: string
+        title: Plaintext hex private key of the keypair or BigInteger
+      mnemonic:
+        type: string
+        title: Mnemonic of the keypair to import. One of private_key or mnemonic should be provided
+      password:
+        type: string
+        title: Password to encrypt the private key
+  v1ImportKeyResponse:
+    type: object
+    properties:
+      publicKey:
+        type: string
+        title: Public key hex of the imported keypair
+  v1ListKeysRequest:
+    type: object
+  v1ListKeysResponse:
+    type: object
+    properties:
+      publicKeys:
+        type: array
+        items:
+          type: string
+        title: List of public keys
+  v1SignGenericRequest:
+    type: object
+    properties:
+      publicKey:
+        type: string
+        title: Public key of the keypair to sign with
+      data:
+        type: string
+        format: byte
+        title: Data to sign
+      password:
+        type: string
+        title: Password to unlock the keypair if using local filesystem for keystore
+  v1SignGenericResponse:
+    type: object
+    properties:
+      signature:
+        type: string
+        format: byte
+        title: Signature of the data

@@ -1,0 +1,53 @@
+syntax = "proto3";
+
+package keymanager.v1;
+
+option go_package = "github.com/layr-labs/cerberus-api/pkg/api/v1";
+
+service KeyManager {
+  rpc GenerateKeyPair(GenerateKeyPairRequest) returns (GenerateKeyPairResponse) {}
+  rpc ImportKey(ImportKeyRequest) returns (ImportKeyResponse) {}
+  rpc ListKeys(ListKeysRequest) returns (ListKeysResponse) {}
+}
+
+message GenerateKeyPairRequest {
+
+  // Password to encrypt the private key
+  // This will be only used if the keystore is local filesystem based
+  string password = 1;
+}
+
+message GenerateKeyPairResponse {
+  // Public key hex of the generated keypair
+  string public_key = 1;
+
+  // Private key hex of the generated keypair
+  string private_key = 2;
+
+  // Mnemonic of the generated keypair
+  string mnemonic = 3;
+}
+
+message ImportKeyRequest {
+  // Plaintext hex private key of the keypair or BigInteger
+  string private_key = 1;
+
+  // Mnemonic of the keypair to import. One of private_key or mnemonic should be provided
+  string mnemonic = 2;
+
+  // Password to encrypt the private key
+  string password = 3;
+
+}
+
+message ImportKeyResponse {
+  // Public key hex of the imported keypair
+  string public_key = 1;
+}
+
+message ListKeysRequest {}
+
+message ListKeysResponse {
+  // List of public keys
+  repeated string public_keys = 1;
+}
