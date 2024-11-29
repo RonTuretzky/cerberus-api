@@ -12,9 +12,9 @@ async fn main() -> Result<(),Box<dyn std::error::Error>> {
     let message = "Hello, world!";
     let message_bytes = message.as_bytes();
     let request = tonic::Request::new(SignGenericRequest {
-      public_key: "bls_public_key".to_string(),
+      public_key: "9ad8e58d3419955bef69837039c76443e09477dec1eeff728fddcdcd6a59550b".to_string(),
       data: message_bytes.to_vec(),
-      password: "password".to_string(),
+      password: "Testacc1Testacc1".to_string(),
     });
     let response: tonic::Response<SignGenericResponse> = client.sign_generic(request).await?;
     let g1_affine = response_to_g1_affine(response.into_inner())?;
@@ -23,13 +23,7 @@ async fn main() -> Result<(),Box<dyn std::error::Error>> {
     Ok(())
 }
 
-fn response_to_g1_affine(response: SignGenericResponse) -> Result<G1Affine, Box<dyn std::error::Error>> {
+pub fn response_to_g1_affine(response: SignGenericResponse) -> Result<G1Affine,Box<dyn std::error::Error>> {
     let signature_bytes = response.signature.clone();
-    let hex_string = hex::encode(&signature_bytes);
-    let bytes = hex::decode(&hex_string).expect("Failed to decode hex");
-    let x_bytes = &bytes[0..32];
-    let y_bytes = &bytes[32..64];
-    let fqx = Fq::from_be_bytes_mod_order(x_bytes);
-    let fqy = Fq::from_be_bytes_mod_order(y_bytes);
-    Ok(G1Affine::new(fqx, fqy))
+    Ok(G1Affine::new(Fq::from_be_bytes_mod_order(&signature_bytes[0..32]), Fq::from_be_bytes_mod_order(&signature_bytes[32..64])))
 }
